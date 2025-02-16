@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Group Detection</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { margin-top: 50px; }
+        img { max-width: 300px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Blood Group Detection using VGG16</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" id="imageInput" accept="image/*" required>
+            <button type="submit">Upload and Predict</button>
+        </form>
+        <img id="preview" src="" alt="Uploaded Image" style="display:none;">
+        <h2 id="result"></h2>
+    </div>
+
+    <script>
+        document.getElementById("upload-form").onsubmit = async function(event) {
+            event.preventDefault();
+            let fileInput = document.getElementById("imageInput");
+            if (!fileInput.files.length) return;
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            
+            let response = await fetch("/predict", { method: "POST", body: formData });
+            let result = await response.json();
+            
+            document.getElementById("preview").src = URL.createObjectURL(fileInput.files[0]);
+            document.getElementById("preview").style.display = "block";
+            document.getElementById("result").innerText = result.predictions.map(p => `${p.label}: ${p.probability.toFixed(2)}`).join("\n");
+        };
+    </script>
+</body>
+</html>
